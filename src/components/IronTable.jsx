@@ -3,22 +3,29 @@ import contacts from './../contacts.json';
 import './IronTable.css';
 
 export class IronTable extends Component {
-  constructor(props) {
-    super(props);
+  constructor() {
+    super();
     this.state = {
       contactData: contacts.slice(0, 5),
     };
   }
 
   addContact = () => {
-    const newContact =
-      contacts[Math.floor(Math.random() * (contacts.length - 6 + 1) + 6)];
-    // console.log(newContact);
-    const list = [...this.state.contactData, newContact];
-
-    this.setState({
-      contactData: list,
+    const unusedContacts = contacts.filter((item) => {
+      const contactUsed = this.state.contactData.includes(item);
+      return !contactUsed;
     });
+    console.log(unusedContacts);
+    if (unusedContacts.length) {
+      const newContact =
+        unusedContacts[Math.floor(Math.random() * unusedContacts.length)];
+
+      const list = [...this.state.contactData, newContact];
+
+      this.setState({
+        contactData: list,
+      });
+    }
   };
 
   sortName = () => {
@@ -41,31 +48,15 @@ export class IronTable extends Component {
     });
   };
 
-  deleteContact = () => {
+  deleteContact = (index) => {
     const list = [...this.state.contactData];
-    list.pop();
+    list.splice(index, 1);
     this.setState({
       contactData: list,
     });
   };
 
   render() {
-    const contactsList = this.state.contactData.map((person) => (
-      <tr key={person.id}>
-        <td>
-          <img
-            className="contactPicture"
-            src={person.pictureUrl}
-            alt={person.name}
-          />
-        </td>
-        <td>{person.name}</td>
-        <td>{Math.round(person.popularity * 100) / 100}</td>
-        <td>
-          <button onClick={this.deleteContact}>Delete</button>
-        </td>
-      </tr>
-    ));
     return (
       <div>
         <button onClick={this.addContact}>Add Contact</button>
@@ -80,7 +71,26 @@ export class IronTable extends Component {
               <th>Action</th>
             </tr>
           </thead>
-          <tbody>{contactsList}</tbody>
+          <tbody>
+            {this.state.contactData.map((person, index) => (
+              <tr key={person.id}>
+                <td>
+                  <img
+                    className="contactPicture"
+                    src={person.pictureUrl}
+                    alt={person.name}
+                  />
+                </td>
+                <td>{person.name}</td>
+                <td>{Math.round(person.popularity * 100) / 100}</td>
+                <td>
+                  <button onClick={() => this.deleteContact(index)}>
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
         </table>
       </div>
     );
